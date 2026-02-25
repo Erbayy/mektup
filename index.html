@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Senin için ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #ffb3c6 0, #ff4b6e 40%, #190018 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.15), transparent 55%);
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      text-align: center;
+      padding: 40px 24px 32px;
+      max-width: 480px;
+      width: 100%;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow:
+        0 22px 60px rgba(0,0,0,0.45),
+        0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.35);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .tag-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #ffccd5;
+      box-shadow: 0 0 12px #ffccd5;
+    }
+
+    .heart-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    .heart-button {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+      outline: none;
+      transform-origin: center;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .heart {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 100px;
+      height: 90px;
+      background: linear-gradient(135deg, #ff2d55, #ff758f);
+      transform: rotate(-45deg);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.3),
+        0 0 30px rgba(255, 179, 214, 0.8);
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: inherit;
+      box-shadow: inherit;
+    }
+
+    .heart::before {
+      top: -50px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 50px;
+      top: 0;
+    }
+
+    .heart-button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 60%);
+      opacity: 0;
+      animation: pulse 2.2s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .click-text {
+      font-size: 16px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .click-text span {
+      font-weight: 600;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      margin-top: 6px;
+    }
+
+    .love-messages {
+      display: none;
+      margin-top: 8px;
+      text-align: left;
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.45) transparent;
+    }
+
+    .love-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .love-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .love-messages::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.45);
+      border-radius: 999px;
+    }
+
+    .love-line {
+      opacity: 0;
+      transform: translateY(8px);
+      margin-bottom: 8px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.95);
+    }
+
+    .love-line span.index {
+      display: inline-block;
+      min-width: 26px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .love-line.show {
+      animation: fadeInUp 0.45s ease-out forwards;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+    }
+
+    .footer-note span {
+      color: #ffd7e0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .vanish {
+      animation: vanish 0.9s ease-in forwards;
+    }
+
+    .fade-out-up {
+      animation: fadeOutUp 0.6s ease-in forwards;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-10px) scale(1.04);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.7);
+        opacity: 0.55;
+      }
+      70% {
+        transform: scale(1.1);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes vanish {
+      0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        filter: blur(0);
+      }
+      60% {
+        transform: scale(1.2) translateY(-6px);
+        opacity: 0.8;
+        filter: blur(1px);
+      }
+      100% {
+        transform: scale(0.2) translateY(-40px);
+        opacity: 0;
+        filter: blur(4px);
+      }
+    }
+
+    @keyframes fadeOutUp {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 0 14px;
+        padding-inline: 18px;
+      }
+      .heart-button {
+        width: 120px;
+        height: 120px;
+      }
+      .click-text {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <div class="container">
+    <div class="tag">
+      <span class="tag-dot"></span>
+      <span>Sana özel bir sır</span>
+    </div>
+
+    <div id="intro">
+      <div class="heart-wrapper">
+        <button class="heart-button" id="heartButton" aria-label="Mesajı görmek için tıkla">
+          <div class="heart"></div>
+        </button>
+        <p class="click-text">
+          Mesajını görmek için <span>kalbe tıkla</span> 💌
+        </p>
+        <p class="hint">Kalp kaybolduğunda, seni ne kadar sevdiğimi anlatan cümleler tek tek görünecek.</p>
+      </div>
+    </div>
+
+    <div class="love-messages" id="loveMessages"></div>
+
+    <p class="footer-note">
+      Bu sayfadaki her cümle, <span>sadece senin için</span>.
+    </p>
+  </div>
+
+  <script>
+    const heartButton = document.getElementById("heartButton");
+    const intro = document.getElementById("intro");
+    const loveMessagesContainer = document.getElementById("loveMessages");
+
+    // 100 tane sevgi cümlesi
+    const loveMessages = [
+      "Seninle tanıştığım gün, hayatımın yönü değişti.",
+      "Sabah uyandığımda aklıma gelen ilk düşünce sensin.",
+      "Uykuya dalmadan önce aklımdan çıkan son düşünce de sensin.",
+      "En çok yorulduğum günlerde bile, seni düşününce hafifliyorum.",
+      "Gülüşün, kalbime dokunan en güzel ayrıntı.",
+      "Ellerini tuttuğum an, dünya susuyor sanki.",
+      "Yanımdayken zamanın nasıl geçtiğini anlayamıyorum.",
+      "Uzak olsan bile kalbime en yakın olan yine sensin.",
+      "İsmini duyduğumda kalbim bir ritim atlıyor.",
+      "Seninle aynı gökyüzüne bakmak bile yetiyor mutlu olmama.",
+      "Kalbimin en güvenli yeri, senin yanın.",
+      "Gözlerindeki ışıktan kendime yol buluyorum.",
+      "Yanımda olduğun sürece hiçbir şeyden korkmuyorum.",
+      "En güzel anılarımın hepsinde bir yerlerde sen varsın.",
+      "Seninle konuşmak bile içimdeki bütün fırtınaları dindiriyor.",
+      "Yanağındaki küçücük bir gülümseme, içimde kocaman bir mutluluk oluyor.",
+      "Sesini duyunca, günün bütün yorgunluğu bitiyor.",
+      "Sana sarıldığımda dünya dursa da umurumda olmaz.",
+      "Seninle her şey daha anlamlı, daha güzel, daha canlı.",
+      "Sen benim için sıradan biri değil, en özelimsin.",
+      "Hayalini kurduğum her gelecekte sen varsın.",
+      "Seninle aynı cümlede geçmek bile kalbimi hızlandırıyor.",
+      "İyi ki yollarımız kesişmiş, iyi ki kalbim seni seçmiş.",
+      "Seni sevmek, hayatta yaptığım en güzel seçim.",
+      "Senli bir hayat, en sevdiğim hikaye.",
+      "Yalnız kaldığım her anda bile, aslında içimde sen varsın.",
+      "Kalbim, adın geçince başka atıyor.",
+      "Seninle geçen her dakika, ömrüme eklenmiş bir hediye gibi.",
+      "Ayrı kaldığımız her anda, seni tekrar göreceğim anı sayıyorum.",
+      "En sıradan günleri bile sen özel yapıyorsun.",
+      "Hayatımda eksik kalan parça sendin, sen gelince tamamlandım.",
+      "Gözlerinin içindeki mutluluğu görmek, benim de mutluluğum.",
+      "Seninle konuşurken dünyayı unutuyorum.",
+      "Sen, her şeyin üstüne iyi ki yazdığım kişisin.",
+      "En sevdiğim yer, başını omzuma koyduğun an.",
+      "Zor günlerimi bile çekilir kılan şey, senin varlığın.",
+      "Seninle aynı şehirde olmak bile güzel bir teselli.",
+      "Attığım her adımda, yanında yürüyeceğin günleri düşünüyorum.",
+      "Sesinin tonu bile içimi ısıtıyor.",
+      "Bazen sadece iyi misin demen bile yetiyor mutlu olmama.",
+      "En çok da bana kendimi değerli hissettirişini seviyorum.",
+      "Kalbime en çok yakışan isim sensin.",
+      "Hayatımın her döneminde, yanımda olmanı istiyorum.",
+      "Seninle aynı fotoğrafta olmak bile ayrı bir mutluluk.",
+      "Dinlediğim her aşk şarkısında aklıma ilk sen geliyorsun.",
+      "Sen güldüğünde, içimde çiçekler açıyor.",
+      "Bütün yorgunluklarımın arasında, en büyük molam sensin.",
+      "Bir bakışınla bile tüm düşüncelerimi dağıtabiliyorsun.",
+      "Seninle geçen zamanı ölçemiyorum; çünkü her saniyesi ayrı güzel.",
+      "Senin yanında kendim olabilmek, en büyük rahatlığım.",
+      "Bana baktığında gözlerinde kendimi görünce çok mutlu oluyorum.",
+      "Seni düşündüğüm her an, içimden iyi ki demeden duramıyorum.",
+      "Yanımda olmasan da, kalbimde hep aynı yerdesin.",
+      "Seninle aynı anda gülmek, kalbime en iyi gelen şeylerden biri.",
+      "Bazen tek ihtiyacım olan şey, seninle birkaç cümle konuşmak.",
+      "Sen benim en güzel alışkanlığımsın, vazgeçemediğim.",
+      "Dünyadaki kalabalığın içinde, görmek istediğim tek yüz seninki.",
+      "Ne kadar anlatsam da, sana olan sevgimi kelimelere sığdıramıyorum.",
+      "Seninle susmak bile güzel; çünkü sessizlik bile anlam kazanıyor.",
+      "Yanımda olduğunda, her yer evim gibi geliyor.",
+      "Gözlerinle kurduğun cümleleri kelimelere gerek kalmadan anlıyorum.",
+      "En karanlık gecelerimi bile aydınlatan hayalin.",
+      "Seninle aynı anda iyi ki diyebilmek istiyorum her gün.",
+      "Başımı göğsüne yasladığımda, dünyanın en huzurlu yerindeymişim gibi hissediyorum.",
+      "Senin ismin geçtiğinde yüzüme yerleşen gülümsemenin tarifi yok.",
+      "Her fotoğrafına baktığımda içimden nasıl bu kadar güzel olabiliyorsun diye soruyorum.",
+      "Mesaj sesini duyduğumda, içimden umarım sensindir diyorum.",
+      "Kendi kendime güldüğüm anların çoğunda sebep sensin.",
+      "Seninle geçirdiğim her an, hafızama özel bir yere kazınıyor.",
+      "En büyük hayalim, bir gün geçmişe dönüp iyi ki pes etmemişiz diyebilmek.",
+      "Yanındayken zaman su gibi akıp gidiyor.",
+      "Seninle beraberken, dünyanın en şanslı insanı gibi hissediyorum.",
+      "Bazen sadece adını yazmak bile yetiyor kalbimin hızlanmasına.",
+      "Sana dair küçük bir ayrıntı bile günümü güzelleştirebiliyor.",
+      "Seninle kurduğum her hayalin peşinden koşmak istiyorum.",
+      "Bir gün, hatırlıyor musun o günü diyeceğimiz her anının içinde sen ol istiyorum.",
+      "En çok da bana kendimi olduğum gibi sevdirmeni seviyorum.",
+      "Seninle yan yana yürümek bile bana yeter.",
+      "Ne olursa olsun, seni sevmekten hiç vazgeçmeyeceğim.",
+      "Kalbimin her atışında, içimden adını fısıldıyorum.",
+      "Seninle aynı sayfada olmak, aynı cümleleri kurmak çok güzel.",
+      "Hayatıma kattığın her küçük mutluluk için sana minnettarım.",
+      "Bazen dünyadan kaçmak istediğimde, sığınmak istediğim tek yer sensin.",
+      "En çok güvendiğim yer, ellerinin arasındaki yerim.",
+      "Seninle konuşurken, sanki her şey mümkünmüş gibi hissediyorum.",
+      "Saatlerce konuşsak bile bana yetmeyeceğini biliyorum.",
+      "Her yeni günde, seni biraz daha çok seviyorum.",
+      "Hayatım boyunca unutamayacağım en değerli his, ilk kez sana aşık olduğum an.",
+      "Seninle beraber büyümek, değişmek ve aynı kalmak istiyorum.",
+      "Sen benim hem huzurum, hem heyecanımsın.",
+      "Her şeye rağmen yanımda duruşunu asla unutmayacağım.",
+      "Kalbimi en iyi anlayan kişi olman, seni daha da özel yapıyor.",
+      "Hayatta en emin olduğum şeylerden biri, seni ne olursa olsun sevmeye devam edeceğim.",
+      "Seninle aynı cümlede sonsuz kelimesini kullanmak istiyorum.",
+      "Kendimi en çok senin yanında tamamlanmış hissediyorum.",
+      "Bir gün çocuklarımız olursa, onlara seni nasıl sevdiğimi anlatmak istiyorum.",
+      "Gözlerim seni aradığında, kalbim çoktan bulmuş oluyor.",
+      "Beni ben yapan en güzel şey, sana olan sevgim.",
+      "Sen benim hiç bitmeyen dualarım, gerçekleşmiş dileğimsin.",
+      "İyi ki varsın, iyi ki kalbim seni seçmiş."
+    ];
+
+    let hasStarted = false;
+
+    function createLoveLine(text, index) {
+      const line = document.createElement("div");
+      line.className = "love-line";
+      const numberSpan = document.createElement("span");
+      numberSpan.className = "index";
+      numberSpan.textContent = (index + 1).toString().padStart(2, "0") + " —";
+      const textSpan = document.createElement("span");
+      textSpan.textContent = text;
+
+      line.appendChild(numberSpan);
+      line.appendChild(textSpan);
+      loveMessagesContainer.appendChild(line);
+      return line;
+    }
+
+    function revealMessagesSequentially() {
+      loveMessagesContainer.style.display = "block";
+
+      let delay = 500; // ilk satır için başlangıç gecikmesi
+      const step = 650; // her satır arası süre (ms)
+
+      loveMessages.forEach((msg, i) => {
+        const line = createLoveLine(msg, i);
+        setTimeout(() => {
+          line.classList.add("show");
+          loveMessagesContainer.scrollTo({
+            top: loveMessagesContainer.scrollHeight,
+            behavior: "smooth"
+          });
+        }, delay);
+        delay += step;
+      });
+    }
+
+    heartButton.addEventListener("click", () => {
+      if (hasStarted) return;
+      hasStarted = true;
+
+      heartButton.classList.add("vanish");
+      intro.classList.add("fade-out-up");
+
+      const totalIntroDuration = 900;
+      setTimeout(() => {
+        intro.classList.add("hidden");
+        revealMessagesSequentially();
+      }, totalIntroDuration);
+    });
+  </script>
+</body>
+</html>
