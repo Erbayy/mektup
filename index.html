@@ -458,10 +458,17 @@
         const line = createLoveLine(msg, i);
         setTimeout(() => {
           line.classList.add("show");
-          loveMessagesContainer.scrollTo({
-            top: loveMessagesContainer.scrollHeight,
-            behavior: "smooth"
-          });
+          // Kullanıcı zaten alta yakınsa, otomatik kaydır; değilse dokunma
+          const distanceToBottom =
+            loveMessagesContainer.scrollHeight -
+            loveMessagesContainer.scrollTop -
+            loveMessagesContainer.clientHeight;
+          if (distanceToBottom < 60) {
+            loveMessagesContainer.scrollTo({
+              top: loveMessagesContainer.scrollHeight,
+              behavior: "smooth"
+            });
+          }
         }, delay);
         delay += step;
       });
